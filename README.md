@@ -1,3 +1,3 @@
 # Synthesis Utils
 
-A collection of utilities for performing higher-level, but still generic processes in Synthesis.
+A collection of utilities for performing higher-level, but still generic processes in Synthesis. An example are my [QuestsAreInSkyrimPatcher](https://github.com/studioph/QuestsAreInSkyrimPatcher) and [SRC-ERSPatcher](https://github.com/studioph/SRC-ERSPatcher), which both perform the same underlying logic of forwarding conditions on quest aliases. The bulk of that logic now lives in the `QuestAliasConditionUtil` class in this library so it can be reused by others.
