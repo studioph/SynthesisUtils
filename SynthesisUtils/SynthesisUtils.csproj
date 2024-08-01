@@ -1,10 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
  
   <PropertyGroup>
+    <Version>0.1.1</Version>
+    <Authors>Paul Hutchings</Authors>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RepositoryUrl>https://github.com/studioph/SynthesisUtils</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
