@@ -54,11 +54,10 @@ namespace Synthesis.Utils.Cells
         /// Winning cell contexts must be writable (i.e. not simple contexts)
         /// </summary>
         /// <param name="cells">A collection of (source cell context, winning cell context) pairs</param>
-        public void PatchCells(IEnumerable<Tuple<IModContext<ICellGetter>, IModContext<TMod, TModGetter, ICell, ICellGetter>>> cells)
+        public void PatchCells(IEnumerable<Tuple<ICellGetter, IModContext<TMod, TModGetter, ICell, ICellGetter>>> cells)
         {
-            foreach (var (sourceContext, winningContext) in cells)
+            foreach (var (sourceCell, winningContext) in cells)
             {
-                var sourceCell = sourceContext.Record;
                 var targetCell = winningContext.Record;
                 foreach (var patcher in Patchers)
                 {
@@ -78,7 +77,7 @@ namespace Synthesis.Utils.Cells
         /// Winning cell contexts must be writable (i.e. not simple contexts)
         /// </summary>
         /// <param name="cells">A collection of (source cell context, winning cell context) pairs</param>
-        public void PatchCells(IEnumerable<KeyValuePair<IModContext<ICellGetter>, IModContext<TMod, TModGetter, ICell, ICellGetter>>> cells)
+        public void PatchCells(IEnumerable<KeyValuePair<ICellGetter, IModContext<TMod, TModGetter, ICell, ICellGetter>>> cells)
         {
             PatchCells(cells.Select(pair => Tuple.Create(pair.Key, pair.Value)));
         }
