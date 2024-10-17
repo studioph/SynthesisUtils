@@ -2,7 +2,7 @@ using Mutagen.Bethesda.Plugins.Cache;
 using Mutagen.Bethesda.Plugins.Records;
 using Mutagen.Bethesda.Skyrim;
 
-namespace Synthesis.Utils.Cells
+namespace Synthesis.Util.Cell
 {
     /// <summary>
     /// Generic interface for forwarding Cell properties
@@ -14,7 +14,7 @@ namespace Synthesis.Utils.Cells
         /// </summary>
         /// <param name="sourceCell">The source Cell to use as the base to compare against.</param>
         /// <param name="targetCell">The target Cell to compare to.</param>
-        /// <returns></returns>
+        /// <returns>True if the cell property needs patching</returns>
         bool NeedsPatch(ICellGetter sourceCell, ICellGetter targetCell);
 
         /// <summary>
@@ -58,17 +58,7 @@ namespace Synthesis.Utils.Cells
         {
             foreach (var (sourceCell, winningContext) in cells)
             {
-                var targetCell = winningContext.Record;
-                foreach (var patcher in Patchers)
-                {
-                    if (patcher.NeedsPatch(sourceCell, targetCell))
-                    {
-                        patcher.PatchCellProperty(
-                            sourceCell,
-                            winningContext.GetOrAddAsOverride(PatchMod)
-                        );
-                    }
-                }
+                PatchCell(sourceCell, winningContext);
             }
         }
 
@@ -80,6 +70,26 @@ namespace Synthesis.Utils.Cells
         public void PatchCells(IEnumerable<KeyValuePair<ICellGetter, IModContext<TMod, TModGetter, ICell, ICellGetter>>> cells)
         {
             PatchCells(cells.Select(pair => Tuple.Create(pair.Key, pair.Value)));
+        }
+
+        /// <summary>
+        /// Patches a single cell with the patchers contained within the pipeline instance
+        /// </summary>
+        /// <param name="sourceCell">The source cell to use as reference</param>
+        /// <param name="winningContext">The winning cell context to patch. Must be writable (i.e. not a simple context)</param>
+        public void PatchCell(ICellGetter sourceCell, IModContext<TMod, TModGetter, ICell, ICellGetter> winningContext)
+        {
+            var targetCell = winningContext.Record;
+            foreach (var patcher in Patchers)
+            {
+                if (patcher.NeedsPatch(sourceCell, targetCell))
+                {
+                    patcher.PatchCellProperty(
+                        sourceCell,
+                        winningContext.GetOrAddAsOverride(PatchMod)
+                    );
+                }
+            }
         }
     }
 }
