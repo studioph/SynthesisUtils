@@ -3,7 +3,7 @@ using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Plugins.Cache;
 using Mutagen.Bethesda.Plugins.Records;
 
-namespace Synthesis.Utils
+namespace Synthesis.Util
 {
     /// <summary>
     /// Utility class for working with collections of mod contexts
@@ -17,7 +17,7 @@ namespace Synthesis.Utils
         /// <param name="contexts">The collection of contexts to search</param>
         /// <param name="modKey">The modkey to look for a context from</param>
         /// <returns>True if the collection has a context with the given modkey</returns>
-        public static bool HasModContext<T>(IEnumerable<IModContext<T>> contexts, ModKey modKey) where T : IMajorRecordGetter
+        public static bool HasContextFromMod<T>(IEnumerable<IModContext<T>> contexts, ModKey modKey) where T : IMajorRecordGetter
         {
             foreach (var context in contexts)
             {
@@ -38,7 +38,7 @@ namespace Synthesis.Utils
         /// <param name="searchStr">The string to search for in the mod name for each context</param>
         /// <param name="caseSensitive">Whether to perform a case-sensitive search. Defaults to false.</param>
         /// <returns>True if the collection has a context with a modkey containing the search string</returns>
-        public static bool HasModContext<T>(IEnumerable<IModContext<T>> contexts, string searchStr, bool caseSensitive = false) where T : IMajorRecordGetter
+        public static bool HasContextFromMod<T>(IEnumerable<IModContext<T>> contexts, string searchStr, bool caseSensitive = false) where T : IMajorRecordGetter
         {
             var comparer = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             foreach (var context in contexts)
@@ -59,7 +59,7 @@ namespace Synthesis.Utils
         /// <param name="contexts">The collection of contexts to search</param>
         /// <param name="regex">The regular expression to match against the modkey for each context</param>
         /// <returns>True if the collection contains a context whose modkey matches the given regular expression</returns>
-        public static bool HasModContext<T>(IEnumerable<IModContext<T>> contexts, Regex regex) where T : IMajorRecordGetter
+        public static bool HasContextFromMod<T>(IEnumerable<IModContext<T>> contexts, Regex regex) where T : IMajorRecordGetter
         {
             foreach (var context in contexts)
             {
@@ -78,7 +78,7 @@ namespace Synthesis.Utils
         /// <param name="contexts">The collection of contexts to search</param>
         /// <param name="modKey">The modkey to look for a context from</param>
         /// <returns>The context associated with the given modkey if found, otherwise null</returns>
-        public static IModContext<T>? FindModContext<T>(IEnumerable<IModContext<T>> contexts, ModKey modKey) where T : IMajorRecordGetter
+        public static IModContext<T>? FindContextFromMod<T>(IEnumerable<IModContext<T>> contexts, ModKey modKey) where T : IMajorRecordGetter
         {
             foreach (var context in contexts)
             {
@@ -99,7 +99,7 @@ namespace Synthesis.Utils
          /// <param name="searchStr">The string to search for in the mod name for each context</param>
          /// <param name="caseSensitive">Whether to perform a case-sensitive search. Defaults to false.</param>
          /// <returns>The context whose modkey contains the search string if found, otherwise null</returns>
-        public static IModContext<T>? FindModContext<T>(IEnumerable<IModContext<T>> contexts, string searchStr, bool caseSensitive = false) where T : IMajorRecordGetter
+        public static IModContext<T>? FindContextFromMod<T>(IEnumerable<IModContext<T>> contexts, string searchStr, bool caseSensitive = false) where T : IMajorRecordGetter
         {
             var comparer = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             foreach (var context in contexts)
@@ -120,7 +120,7 @@ namespace Synthesis.Utils
         /// <param name="contexts">The collection of contexts to search</param>
         /// <param name="regex">The regular expression to match against the modkey for each context</param>
         /// <returns>The context whose modkey matches the given regular expression if found, otherwise null</returns>
-        public static IModContext<T>? FindModContext<T>(IEnumerable<IModContext<T>> contexts, Regex regex) where T : IMajorRecordGetter
+        public static IModContext<T>? FindContextFromMod<T>(IEnumerable<IModContext<T>> contexts, Regex regex) where T : IMajorRecordGetter
         {
             foreach (var context in contexts)
             {

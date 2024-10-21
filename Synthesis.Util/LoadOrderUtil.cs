@@ -4,7 +4,7 @@ using Mutagen.Bethesda.Plugins.Exceptions;
 using Mutagen.Bethesda.Plugins.Order;
 using Mutagen.Bethesda.Skyrim;
 
-namespace Synthesis.Utils
+namespace Synthesis.Util
 {
     public static class LoadOrderUtil
     {
@@ -20,7 +20,7 @@ namespace Synthesis.Utils
                 }
             }
 
-            throw new MissingModException(pluginVersions, $"Unable to resolve plugin version from options: {pluginVersions}");
+            throw new MissingModException(pluginVersions, $"Unable to resolve plugin version from options: {pluginVersions.ToPrettyString()}");
         }
 
         // Asserts that the load order contains any ModKey in the provided list
@@ -33,8 +33,16 @@ namespace Synthesis.Utils
                 }
             }
 
-            var formattedMessage = message is null ? $"Unable to find any of the following mods in the load order: {modKeys}" : message;
+            var formattedMessage = message is null ? $"Unable to find any of the following mods in the load order: {modKeys.ToPrettyString()}" : message;
             throw new MissingModException(modKeys, formattedMessage);
+        }
+    }
+
+    public static class Extensions
+    {
+        public static string ToPrettyString<T>(this IEnumerable<T> items)
+        {
+            return $"[{string.Join(" ,", items)}]";
         }
     }
 }
