@@ -3,34 +3,26 @@ using Mutagen.Bethesda.Plugins.Records;
 
 namespace Synthesis.Util
 {
-    public abstract class PatcherPipeline<
-        TMod,
-        TModGetter,
-        TMajor,
-        TMajorGetter,
-        TPatcher,
-        TValue,
-        TData
-    >(TMod patchMod)
+    public abstract class PatcherPipeline<TMod, TModGetter, TMajor, TMajorGetter>(TMod patchMod)
         where TMod : IMod, TModGetter
         where TModGetter : IModGetter
         where TMajor : TMajorGetter
         where TMajorGetter : IMajorRecordQueryableGetter
-        where TPatcher : IPatcher<TMajor, TMajorGetter, TValue>
-        where TValue : notnull
-        where TData : notnull
     {
         protected readonly TMod _patchMod = patchMod;
         public uint PatchedCount { get; protected set; } = 0;
 
-        public abstract IEnumerable<
-            PatchingData<TMod, TModGetter, TMajor, TMajorGetter, TValue>
-        > GetRecordsToPatch(TPatcher patcher, IEnumerable<TData> records);
-
-        public void PatchRecord(
+        /// <summary>
+        /// Patches a record based on the provided patching data and patcher instance
+        /// </summary>
+        /// <typeparam name="TValue">The values used for patching</typeparam>
+        /// <param name="item">The record and patching data</param>
+        /// <param name="patcher">The patcher instance to use</param>
+        public void PatchRecord<TValue>(
             PatchingData<TMod, TModGetter, TMajor, TMajorGetter, TValue> item,
-            TPatcher patcher
+            IPatcher<TMajor, TMajorGetter, TValue> patcher
         )
+            where TValue : notnull
         {
             var target = item.Context.GetOrAddAsOverride(_patchMod);
             patcher.Patch(target, item.Values);
@@ -38,10 +30,11 @@ namespace Synthesis.Util
             Update(target);
         }
 
-        public void PatchRecords(
-            TPatcher patcher,
+        public void PatchRecords<TValue>(
+            IPatcher<TMajor, TMajorGetter, TValue> patcher,
             IEnumerable<PatchingData<TMod, TModGetter, TMajor, TMajorGetter, TValue>> recordsToPatch
         )
+            where TValue : notnull
         {
             foreach (var item in recordsToPatch)
             {
@@ -61,99 +54,88 @@ namespace Synthesis.Util
     /// </summary>
     /// <typeparam name="TMajor"></typeparam>
     /// <typeparam name="TMajorGetter"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    public abstract class ForwardPatcherPipeline<TMod, TModGetter, TMajor, TMajorGetter, TValue>(
+    public abstract class ForwardPatcherPipeline<TMod, TModGetter, TMajor, TMajorGetter>(
         TMod patchMod
-    )
-        : PatcherPipeline<
-            TMod,
-            TModGetter,
-            TMajor,
-            TMajorGetter,
-            IForwardPatcher<TMajor, TMajorGetter, TValue>,
-            TValue,
-            ForwardRecordContext<TMod, TModGetter, TMajor, TMajorGetter>
-        >(patchMod)
+    ) : PatcherPipeline<TMod, TModGetter, TMajor, TMajorGetter>(patchMod)
         where TMod : IMod, TModGetter
         where TModGetter : IModGetter
         where TMajor : TMajorGetter
         where TMajorGetter : IMajorRecordQueryableGetter
-        where TValue : notnull
     {
         /// <summary>
-        ///
+        /// Processes records and outputs ones that should be patched along with the new values
         /// </summary>
-        /// <typeparam name="TMod"></typeparam>
-        /// <typeparam name="TModGetter"></typeparam>
-        /// <param name="patcher"></param>
+        /// <param name="patcher">The patcher instance to use</param>
         /// <param name="records"></param>
-        /// <returns></returns>
-        public override IEnumerable<
+        /// <returns>DTO objects containing the winning records and values needed to patch</returns>
+        public IEnumerable<
             PatchingData<TMod, TModGetter, TMajor, TMajorGetter, TValue>
-        > GetRecordsToPatch(
+        > GetRecordsToPatch<TValue>(
             IForwardPatcher<TMajor, TMajorGetter, TValue> patcher,
             IEnumerable<ForwardRecordContext<TMod, TModGetter, TMajor, TMajorGetter>> records
-        ) =>
+        )
+            where TValue : notnull =>
             records
-                .Select(item => new PatchingData<TMod, TModGetter, TMajor, TMajorGetter, TValue>(
-                    item.Winning,
-                    patcher.Analyze(item.Source, item.Winning.Record)
-                ))
+                .Select(item =>
+                    item.Winning.WithPatchingData(patcher.Analyze(item.Source, item.Winning.Record))
+                )
                 .Where(result => patcher.ShouldPatch(result.Values));
     }
 
-    public abstract class TransformPatcherPipeline<TMod, TModGetter, TMajor, TMajorGetter, TValue>(
+    /// <summary>
+    /// A pipeline for applying multiple transform-style patchers to multiple collections of records
+    /// </summary>
+    /// <typeparam name="TMod"></typeparam>
+    /// <typeparam name="TModGetter"></typeparam>
+    /// <typeparam name="TMajor"></typeparam>
+    /// <typeparam name="TMajorGetter"></typeparam>
+    /// <param name="patchMod"></param>
+    public abstract class TransformPatcherPipeline<TMod, TModGetter, TMajor, TMajorGetter>(
         TMod patchMod
-    )
-        : PatcherPipeline<
-            TMod,
-            TModGetter,
-            TMajor,
-            TMajorGetter,
-            ITransformPatcher<TMajor, TMajorGetter, TValue>,
-            TValue,
-            IModContext<TMod, TModGetter, TMajor, TMajorGetter>
-        >(patchMod)
+    ) : PatcherPipeline<TMod, TModGetter, TMajor, TMajorGetter>(patchMod)
         where TMod : IMod, TModGetter
         where TModGetter : IModGetter
         where TMajor : TMajorGetter
         where TMajorGetter : IMajorRecordQueryableGetter
-        where TValue : notnull
     {
-        public override IEnumerable<
+        public IEnumerable<
             PatchingData<TMod, TModGetter, TMajor, TMajorGetter, TValue>
-        > GetRecordsToPatch(
+        > GetRecordsToPatch<TValue>(
             ITransformPatcher<TMajor, TMajorGetter, TValue> patcher,
             IEnumerable<IModContext<TMod, TModGetter, TMajor, TMajorGetter>> records
-        ) =>
+        )
+            where TValue : notnull =>
             records
                 .Where(context => patcher.Filter(context.Record))
-                .Select(context => new PatchingData<TMod, TModGetter, TMajor, TMajorGetter, TValue>(
-                    context,
-                    patcher.Apply(context.Record)
-                ));
+                .Select(context => context.WithPatchingData(patcher.Apply(context.Record)));
     }
 
+    /// <summary>
+    /// A pipeline for applying multiple conditional transform-style patchers to multiple collections of records
+    /// </summary>
+    /// <typeparam name="TMod"></typeparam>
+    /// <typeparam name="TModGetter"></typeparam>
+    /// <typeparam name="TMajor"></typeparam>
+    /// <typeparam name="TMajorGetter"></typeparam>
+    /// <param name="patchMod"></param>
     public abstract class ConditionalTransformPatcherPipeline<
         TMod,
         TModGetter,
         TMajor,
-        TMajorGetter,
-        TValue
-    >(TMod patchMod)
-        : TransformPatcherPipeline<TMod, TModGetter, TMajor, TMajorGetter, TValue>(patchMod)
+        TMajorGetter
+    >(TMod patchMod) : TransformPatcherPipeline<TMod, TModGetter, TMajor, TMajorGetter>(patchMod)
         where TMod : IMod, TModGetter
         where TModGetter : IModGetter
         where TMajor : TMajorGetter
         where TMajorGetter : IMajorRecordQueryableGetter
-        where TValue : notnull
     {
         public IEnumerable<
             PatchingData<TMod, TModGetter, TMajor, TMajorGetter, TValue>
-        > GetRecordsToPatch(
+        > GetRecordsToPatch<TValue>(
             IConditionalTransformPatcher<TMajor, TMajorGetter, TValue> patcher,
             IEnumerable<IModContext<TMod, TModGetter, TMajor, TMajorGetter>> records
-        ) =>
+        )
+            where TValue : notnull =>
             base.GetRecordsToPatch(patcher, records)
                 .Where(result => patcher.ShouldPatch(result.Values));
     }
