@@ -83,7 +83,7 @@ namespace Synthesis.Util.Quest
     public class QuestAliasConditionPatcher(
         IConditionGetter condition,
         Func<IConditionGetter, bool>? searchFunc = null
-    ) : IForwardQuestPatcher<IEnumerable<uint>>
+    ) : IForwardPatcher<IQuest, IQuestGetter, IEnumerable<uint>>
     {
         /// <summary>
         /// The target condition to patch quest aliases with
