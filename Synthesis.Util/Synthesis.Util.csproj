@@ -11,9 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mutagen.Bethesda.Skyrim" Version="0.45" />
-    <!-- <PackageReference Include="Mutagen.Bethesda.FormKeys.SkyrimSE" Version="3.2" /> -->
-    <PackageReference Include="Mutagen.Bethesda.Synthesis" Version="0.29" />
+    <PackageReference Include="Mutagen.Bethesda.Skyrim" Version="0.47.4" />
+    <PackageReference Include="Mutagen.Bethesda.Synthesis" Version="0.30.7" />
     <None Include="../README.md" Pack="true" PackagePath="/"/>
   </ItemGroup>
 </Project>
